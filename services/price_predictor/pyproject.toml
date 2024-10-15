@@ -18,6 +18,7 @@ xgboost = "2.0.0"
 optuna = "^3.6.1"
 pandas = "<2.2.0"
 hopsworks = "^3.7.0"
+pydantic-settings = "^2.5.2"
 
 
 
