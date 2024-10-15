@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-# observe how I am using absolute imports here
-# if you know how to use relative imports, please enlighten me :-)
+
 from src.trade_data_source.trade import Trade
 
 class TradeSource(ABC):

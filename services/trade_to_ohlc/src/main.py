@@ -76,7 +76,7 @@ def transform_trade_to_ohlcv(
     # Create a Quix Streams DataFrame
     sdf = app.dataframe(input_topic)
 
-    # check if we are actually reading incoming trades
+    # check  incoming trades updating
     # sdf.update(logger.debug)
 
     # the meat of the transformation

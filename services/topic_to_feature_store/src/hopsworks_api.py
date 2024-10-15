@@ -46,8 +46,7 @@ def push_value_to_feature_group(
         event_time=feature_group_event_time,
         online_enabled=True,
 
-        # TODO: either as homework or I will show one example.
-        # expectation_suite=expectation_suite_transactions,
+
     )
 
     # transform the value dict into a pandas DataFrame

@@ -36,17 +36,9 @@ class KrakenRestAPI(TradeSource):
             f'Initializing KrakenRestAPI: from_ms={ts_to_date(self.from_ms)}, to_ms={ts_to_date(self.to_ms)}'
         )
 
-        # the timestamp from which we want to fetch historical data
-        # this will be updated after each batch of trades is fetched from the API
-        # self.since_ms = from_ms
         self.last_trade_ms = self.from_ms
 
-        # are we done fetching historical data?
-        # Yes, if the last batch of trades has a data['result'][product_id]['last'] >= self.to_ms
-        # self._is_done = False
 
-        # cache_dir is the directory where we will store the historical data to speed up
-        # service restarts
         self.use_cache = False
         if cache_dir is not None:
             self.cache = CachedTradeData(cache_dir)
@@ -112,38 +104,14 @@ class KrakenRestAPI(TradeSource):
             # parse string into dictionary
             data = json.loads(response.text)
 
-            # TODO: Error handling
-            # It can happen that we get an error response from KrakenRESTAP like the following:
-            # data = {'error': ['EGeneral:Too many requests']}
-            # To solve this have several options
-            #
-            # Option 1. Check if the `error` key is present in the `data` and has
-            # a non-empty list value. If so, we could raise an exception, or even better, implment
-            # a retry mechanism, using a library like `retry` https://github.com/invl/retry
-            #
-            # Option 2. Simply slow down the rate at which we are making requests to the Kraken API,
-            # and cross your fingers.
-            #
-            # Option 3. Implement both Option 1 and Option 2, so you don't need to cross your fingers.
-            #
-            # Here is an example of how you could implement Option 2
+
+            # Error Handling 
             if ('error' in data) and ('EGeneral:Too many requests' in data['error']):
                 # slow down the rate at which we are making requests to the Kraken API
                 logger.info('Too many requests. Sleeping for 30 seconds')
                 sleep(30)
 
-            # Python trick
-            # Instead of initializing an empty list and appending to it, like this
-            #
-            # trades = []
-            # for trade in data['result'][self.product_ids[0]]:
-            #     trades.append({
-            #         'price': float(trade[0]),
-            #         'volume': float(trade[1]),
-            #         'time': int(trade[2]),
-            #     })
-            #
-            # You can use a list comprehension to do the same thing
+
             trades = [
                 Trade(
                     price=float(trade[0]),
@@ -169,21 +137,15 @@ class KrakenRestAPI(TradeSource):
             sleep(1)
 
         if trades[-1].timestamp_ms == self.last_trade_ms:
-            # if the last trade timestamp in the batch is the same as self.last_trade_ms,
-            # then we need to increment it by 1 to avoid repeating the exact same API request,
-            # which would result in an infinite loop
+
             self.last_trade_ms = trades[-1].timestamp_ms + 1
         else:
-            # otherwise, update self.last_trade_ms to the timestamp of the last trade
-            # in the batch
+
             self.last_trade_ms = trades[-1].timestamp_ms
         
         # filter out trades that are after the end timestamp
         trades = [trade for trade in trades if trade.timestamp_ms <= self.to_ms]
 
-        # if ns_to_date(since_ns) == '2024-04-30 18:33:41':
-        #     # self.cache._get_file_path(url)
-        #     breakpoint()
 
         return trades
 
