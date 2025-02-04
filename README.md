@@ -4,7 +4,7 @@ This project is a Bitcoin price prediction tool that uses machine learning techn
 
 ## Features
 
-- Data collection from cryptocurrency APIs
+- Data collection from Kraken APIs
 - Data preprocessing and feature engineering
 - Implementation of machine learning models for price prediction
 - Visualization of predictions and historical data
